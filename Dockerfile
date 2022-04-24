@@ -30,13 +30,15 @@ RUN pip install -U setuptools 'cryptography>=3.0,<3.1' poetry==1.1.7
 COPY backend/pyproject.toml backend/poetry.lock ./
 RUN poetry config virtualenvs.path /venv
 RUN poetry install --no-dev --no-ansi --no-interaction
-RUN poetry run pip install -U setuptools $EXTRA_DEPS
+RUN poetry run pip install -U setuptools psycopg2-binary $EXTRA_DEPS
 
 COPY backend/manage.py backend/gunicorn.conf.py ./
 COPY backend/tabby tabby
 COPY --from=frontend /app/build /frontend
 
-ARG BUNDLED_TABBY=1.0.163
+#ARG BUNDLED_TABBY=1.0.163
+
+ARG BUNDLED_TABBY=1.0.171-nightly.3
 
 RUN FRONTEND_BUILD_DIR=/frontend /venv/*/bin/python ./manage.py collectstatic --noinput
 RUN FRONTEND_BUILD_DIR=/frontend /venv/*/bin/python ./manage.py add_version ${BUNDLED_TABBY}
